@@ -4,6 +4,8 @@
  */
 package redblacktree;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author sanotehu
@@ -30,5 +32,9 @@ public class RedBlackTree extends Tree {
             return false;
         }
         return this.root.member(node);
+    }
+    
+    public ArrayList<RedBlackNode> path(RedBlackNode node) {
+        return this.root.path(node);
     }
 }
