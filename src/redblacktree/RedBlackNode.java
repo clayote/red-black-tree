@@ -43,6 +43,19 @@ public class RedBlackNode extends Node {
         return bd;
     }
 
+    public int black_in_path(RedBlackNode node) {
+	Queue path = this.path(node);
+	RedBlackNode check = path.front();
+	int bct = 0;
+	while(check != null) {
+	    if(!check.red) {
+		bct++;
+	    }
+	    check = path.front();
+	}
+	return bct;
+    }
+
     @Override
     public RedBlackNode child(int index) {
         if (index >= 0 && index < numChildren) {
@@ -131,10 +144,6 @@ public class RedBlackNode extends Node {
     }
 
     public void adopt(RedBlackNode node) {
-        if (this.numChildren >= MAX_CHILDREN) {
-            return;
-        }
-        if ((this.red && !node.red) || !this.red) {
             // node's legit. make it mine.
             // It's on the level below me, if I have a level at all.
             if (this.level() > -1) {
@@ -154,10 +163,6 @@ public class RedBlackNode extends Node {
                 }
             }
             this.numChildren++;
-        } else {
-            return; //should probably throw an exception, not sure which though
-        }
-
     }
 
     public void disown(int i) {
@@ -174,5 +179,9 @@ public class RedBlackNode extends Node {
             this.children[i] = temp;
         }
         this.numChildren--;
+    }
+
+    public int children() {
+	return this.numChildren;
     }
 }
