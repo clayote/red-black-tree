@@ -9,6 +9,7 @@ package redblacktree;
  * @author sanotehu
  */
 public class RedBlackTreeApp {
+
     public Boolean RED = true;
     public Boolean BLACK = false;
 
@@ -16,6 +17,8 @@ public class RedBlackTreeApp {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        RedBlackFrame frame = new RedBlackFrame();
+        RedBlackTree tree = new RedBlackTree();
+        tree.listen_to(frame.ins);
     }
 }

@@ -163,18 +163,15 @@ public class RedBlackNode extends Node {
         //Return true on success, false on failure.
         if (this.full()) {
             return false;
-        }
-        else if (this.red && that.red) {
+        } else if (this.red && that.red) {
             return false;
-        }
-        else if (!that.red) {
+        } else if (!that.red) {
             //Try adopting it. Then check if I'm still in compliance with invariant 4, "Every simple path from a node to a descendant leaf contains the same number of black nodes."
             //If not, disown the new guy.
             this.append(that);
-            if(this.obedient()) {
+            if (this.obedient()) {
                 return true;
-            }
-            else {
+            } else {
                 this.disown(that);
                 return false;
             }
@@ -196,13 +193,15 @@ public class RedBlackNode extends Node {
         }
         this.numChildren--;
     }
-    
-    public void disown(RedBlackNode child) {
-        for(int i=0;i<this.numChildren;i++) {
-            if(this.child(i) == child) {
+
+    public boolean disown(RedBlackNode child) {
+        for (int i = 0; i < this.numChildren; i++) {
+            if (this.child(i) == child) {
                 this.disown(i);
+                return true;
             }
         }
+        return false;
     }
 
     public int children() {
@@ -218,10 +217,10 @@ public class RedBlackNode extends Node {
         this.children[this.numChildren] = node;
         this.numChildren++;
     }
-    
+
     private RedBlackQueue fringe(RedBlackQueue fringe) {
-        for(int i=0;i<this.numChildren;i++) {
-            if(this.child(i).getClass() == RedBlackSentinel.class) {
+        for (int i = 0; i < this.numChildren; i++) {
+            if (this.child(i).getClass() == RedBlackSentinel.class) {
                 fringe.enqueue(this.child(i));
             } else {
                 RedBlackQueue lilfringe = this.child(i).fringe(fringe);
@@ -230,21 +229,103 @@ public class RedBlackNode extends Node {
         }
         return fringe;
     }
-    
+
     public RedBlackQueue fringe() {
         return this.fringe(new RedBlackQueue());
     }
-    
+
     private boolean obedient() {
         //Check for compliance with invariant 4.
         RedBlackQueue fringe = this.fringe();
         RedBlackNode leaf = fringe.dequeue();
         int numblack = this.black_in_path(leaf);
         leaf = fringe.dequeue();
-        while(leaf != null) {
-            if(this.black_in_path(leaf) != numblack) return false;
+        while (leaf != null) {
+            if (this.black_in_path(leaf) != numblack) {
+                return false;
+            }
             leaf = fringe.dequeue();
         }
         return true;
+    }
+
+    public int key() {
+        return this.key;
+    }
+
+    public RedBlackNode floorchild(int n) {
+        //Find the largest child with key less than n.
+        if (this.numChildren < 1) {
+            return null;
+        }
+        RedBlackNode floor = null;
+        for (int i = 0; i < this.numChildren; i++) {
+            if (this.child(i).key() < n) {
+                if (floor == null || this.child(i).gt(floor)) {
+                    floor = this.child(i);
+                }
+            }
+        }
+        return floor;
+    }
+
+    public RedBlackNode floorchild(RedBlackNode node) {
+        return this.floorchild(node.key());
+    }
+
+    public RedBlackNode ceilingchild(int n) {
+        if (this.numChildren < 1) {
+            return null;
+        }
+        RedBlackNode ceil = null;
+        for (int i = 0; i < this.numChildren; i++) {
+            if (this.child(i).key() > n) {
+                if (ceil == null || this.child(i).lt(ceil)) {
+                    ceil = this.child(i);
+                }
+            }
+        }
+        return ceil;
+    }
+
+    public RedBlackNode ceilingchild(RedBlackNode node) {
+        return this.ceilingchild(node.key());
+    }
+
+    public RedBlackNode[] children_above(int n) {
+        RedBlackQueue r = new RedBlackQueue();
+        for (int i = 0; i < this.numChildren; i++) {
+            if (this.child(i).key() > n) {
+                r.enqueue(this.child(i));
+            }
+        }
+        return r.toArray();
+    }
+
+    public RedBlackNode[] children_above(RedBlackNode node) {
+        return this.children_above(node.key());
+    }
+
+    public RedBlackNode[] children_above() {
+        //Actually this should be a special case because children are sorted and I can therefore stop once I identify the point where they go from lower to higher.
+        return this.children_above(this.key);
+    }
+
+    public RedBlackNode[] children_below(int n) {
+        RedBlackQueue r = new RedBlackQueue();
+        for (int i = 0; i < this.numChildren; i++) {
+            if (this.child(i).key() < n) {
+                r.enqueue(this.child(i));
+            }
+        }
+        return r.toArray();
+    }
+
+    public RedBlackNode[] children_below(RedBlackNode node) {
+        return this.children_below(node.key());
+    }
+
+    public RedBlackNode[] children_below() {
+        return this.children_below(this.key);
     }
 }
